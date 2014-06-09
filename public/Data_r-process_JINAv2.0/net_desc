@@ -1,0 +1,19 @@
+Data_r-process_JINAv2.0                                                         
+Number of Nuclear Species= 4510
+Reaction Count for the 8 different types
+         1         1      4232
+         2      4233     18568
+         3     18569     20754
+         4         1     11363
+         5     11364     31731
+         6     31732     31751
+         7     31752     31757
+         8         1        27
+Necessary dimensions
+  nreac(1,2,3)=   20754   31757      27
+    nan(1,2,3)=   58038  115633      92
+Reaction Count for non-REACLIB rates
+  nffn=     366   nnu=       0
+Matrix Sparseness parameters
+Border Widths      83   83
+Diagonal Widths   122 4080(j<i,j>i)
