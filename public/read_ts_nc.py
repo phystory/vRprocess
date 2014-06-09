@@ -1,11 +1,13 @@
+import sys
 import os
 import subprocess as sp
 import numpy as np
 import struct
-import array
+from array import array
 import matplotlib as mpl
 from matplotlib  import pyplot as plt
 from matplotlib import animation as animation
+from matplotlib.colors import LogNorm
 
 """
 Python code to read tso file based on matlab code
@@ -27,27 +29,7 @@ function [zz, aa, xmf, time, temperature, density, timestep, edot, flx_end, flx]
 %--------------------------------------------------------------------------
 """
 
-numframes = 100
-numpoints = 10
-
-fig = plt.figure()
-#xmin = 0
-#xmax = 100
-#ymin = 0
-#ymax = 200
-
-def update_plot(i, data, scat):
-	scat.set_array(data[i])
-	#time_text.set_text(time_template%(time[i]))
-	#return scat,time_text
-	return scat,
-
-"""
-def init():
-	time_text.set_text('')
-	return time_text
-"""
-
+gith = 0
 desc1 = []
 desc2 = []
 desc3 = []
@@ -69,8 +51,8 @@ timestep = []
 edot = []
 ims = []
 
-with open("tso1",'rb') as file_id:
-	record_length1=struct.unpack('i',file_id.read(4))[0]
+with open("tso25",'rb') as file_id:
+	record_length1=struct.unpack('<i',file_id.read(4))[0]
 	for ith in range (0,80):
 		desc1.append(struct.unpack('c',file_id.read(1))[0])
 	for ith in range (0,80):
@@ -79,116 +61,152 @@ with open("tso1",'rb') as file_id:
 		desc3.append(struct.unpack('c',file_id.read(1))[0])
 	for ith in range (0,80):
 		data_desc.append(struct.unpack('c',file_id.read(1))[0])
-	record_length2=struct.unpack('i',file_id.read(4))[0]
-	record_length1=struct.unpack('i',file_id.read(4))[0]
-	kstmx    =struct.unpack('i',file_id.read(4))[0]
-	kitmx    =struct.unpack('i',file_id.read(4))[0]
-	iweak    =struct.unpack('i',file_id.read(4))[0]
-	iscrn    =struct.unpack('i',file_id.read(4))[0]
-	iconvc   =struct.unpack('i',file_id.read(4))[0]
-	changemx =struct.unpack('d',file_id.read(8))[0]
-	tolm     =struct.unpack('d',file_id.read(8))[0]
-	tolc     =struct.unpack('d',file_id.read(8))[0]
-	yacc     =struct.unpack('d',file_id.read(8))[0]
-	ymin     =struct.unpack('d',file_id.read(8))[0]
-	tdel_mm  =struct.unpack('d',file_id.read(8))[0]
-	record_length2=struct.unpack('i',file_id.read(4))[0]
+	record_length2=struct.unpack('<i',file_id.read(4))[0]
+	record_length1=struct.unpack('<i',file_id.read(4))[0]
+	kstmx    =struct.unpack('<i',file_id.read(4))[0]
+	kitmx    =struct.unpack('<i',file_id.read(4))[0]
+	iweak    =struct.unpack('<i',file_id.read(4))[0]
+	iscrn    =struct.unpack('<i',file_id.read(4))[0]
+	iconvc   =struct.unpack('<i',file_id.read(4))[0]
+	changemx =struct.unpack('<d',file_id.read(8))[0]
+	tolm     =struct.unpack('<d',file_id.read(8))[0]
+	tolc     =struct.unpack('<d',file_id.read(8))[0]
+	yacc     =struct.unpack('<d',file_id.read(8))[0]
+	ymin     =struct.unpack('<d',file_id.read(8))[0]
+	tdel_mm  =struct.unpack('<d',file_id.read(8))[0]
+	record_length2=struct.unpack('<i',file_id.read(4))[0]
 
 	# Read Abundance Info
-	record_length1=struct.unpack('i',file_id.read(4))[0]
+	record_length1=struct.unpack('<i',file_id.read(4))[0]
 	for ith in range (0,80):
 		abund_file.append(struct.unpack('c',file_id.read(1))[0])
 	for ith in range (0,80):
 		abund_desc.append(struct.unpack('c',file_id.read(1))[0])
-	record_length2=struct.unpack('i',file_id.read(4))
+	record_length2=struct.unpack('<i',file_id.read(4))
 
 	# Read Thermodynamic Info
-	record_length1=struct.unpack('i',file_id.read(4))[0]
+	record_length1=struct.unpack('<i',file_id.read(4))[0]
 	for ith in range (0,80):
 		thermo_file.append(struct.unpack('c',file_id.read(1))[0])
 	for ith in range (0,80):
 		thermo_desc.append(struct.unpack('c',file_id.read(1))[0])
-	record_length2=struct.unpack('i',file_id.read(4))[0]
+	record_length2=struct.unpack('<i',file_id.read(4))[0]
 
 	# Read Nuclear Info
-	record_length1=struct.unpack('i',file_id.read(4))[0]
-	ny            =struct.unpack('i',file_id.read(4))[0]
+	record_length1=struct.unpack('<i',file_id.read(4))[0]
+	ny            =struct.unpack('<i',file_id.read(4))[0]
 	print "ny=",ny
 	for ith in range (0,ny):
-		zz.append(struct.unpack('d',file_id.read(8))[0])
+		zz.append(struct.unpack('<d',file_id.read(8))[0])
 	for ith in range (0,ny):
-		aa.append(struct.unpack('d',file_id.read(8))[0])
-	record_length2=struct.unpack('i',file_id.read(4))[0]
+		aa.append(struct.unpack('<d',file_id.read(8))[0])
+	record_length2=struct.unpack('<i',file_id.read(4))[0]
 	#print zz,aa
 
 	# Read Flux Info
-	record_length1=struct.unpack('i',file_id.read(4))[0]
-	nflx          =struct.unpack('i',file_id.read(4))[0]
+	record_length1=struct.unpack('<i',file_id.read(4))[0]
+	nflx          =struct.unpack('<i',file_id.read(4))[0]
 	if nflx > 0:
 		for ith in range(0,nflx):
-			flx_end1=struct.unpack('i',file_id.read(4))[0]
-			flx_end2=struct.unpack('i',file_id.read(4))[0]
-			#print "flx_end1=",flx_end1,"flx_end2=",flx_end2
-			#flx_end[ith].append(struct.unpack('i',file_id.read(4))[0])
-			#flx_end[ith].append(struct.unpack('i',file_id.read(4))[0])
-	record_length2=struct.unpack('i',file_id.read(4))[0]
+			flx_end1=struct.unpack('<i',file_id.read(4))[0]
+			flx_end2=struct.unpack('<i',file_id.read(4))[0]
+			#flx_end[ith].append(struct.unpack('<i',file_id.read(4))[0])
+			#flx_end[ith].append(struct.unpack('<i',file_id.read(4))[0])
+	record_length2=struct.unpack('<i',file_id.read(4))[0]
 	print record_length2
 
 	# Read data from each timestep
 	print "kstmx=",kstmx
-	kstmx = 50
+	#kstmx=2000
 	for k in range(1, kstmx):
-		record_length1 =struct.unpack('i',file_id.read(4))[0]
+		try:
+			record_length1 =struct.unpack('<i',file_id.read(4))[0]
+		except:
+			break
 		# If end of file, exit 
 		if not record_length1:
 			break
 		# Otherwise read data
-		kstep          =struct.unpack('i',file_id.read(4))[0]
-		#time.append(struct.unpack('d',file_id.read(8))[0])
-		#temperature.append(struct.unpack('d',file_id.read(8))[0])
-		#density.append(struct.unpack('d',file_id.read(8))[0])
-		#timestep.append(struct.unpack('d',file_id.read(8))[0])
-		#edot.append(struct.unpack('d',file_id.read(8))[0])
-		timel = struct.unpack('d',file_id.read(8))[0]
-		temperaturel = struct.unpack('d',file_id.read(8))[0]
-		densityl = struct.unpack('d',file_id.read(8))[0]
-		timestepl = struct.unpack('d',file_id.read(8))[0]
-		edotl = struct.unpack('d',file_id.read(8))[0]
+		kstep          =struct.unpack('<i',file_id.read(4))[0]
+		#time.append(struct.unpack('<d',file_id.read(8))[0])
+		#temperature.append(struct.unpack('<d',file_id.read(8))[0])
+		#density.append(struct.unpack('<d',file_id.read(8))[0])
+		#timestep.append(struct.unpack('<d',file_id.read(8))[0])
+		#edot.append(struct.unpack('<d',file_id.read(8))[0])
+		timel = struct.unpack('<d',file_id.read(8))[0]
+		temperaturel = struct.unpack('<d',file_id.read(8))[0]
+		densityl = struct.unpack('<d',file_id.read(8))[0]
+		timestepl = struct.unpack('<d',file_id.read(8))[0]
+		edotl = struct.unpack('<d',file_id.read(8))[0]
 		time.append(timel)
 		xmf.append([])
 		for ith in range(0,ny):
-			xmfl = struct.unpack('d',file_id.read(8))[0]
+			xmfl = struct.unpack('<d',file_id.read(8))[0]
 			xmf[k-1].append(aa[ith]*xmfl)
 		if nflx > 0: 
 			for ith in range(0,nflx):
-				flxl = struct.unpack('d',file_id.read(8))[0]
+				flxl = struct.unpack('<d',file_id.read(8))[0]
 				#print "flxl=",flxl
-		record_length2 =struct.unpack('i',file_id.read(4))[0]
-		#update_line(hl, aa, xmf)
-		#print k,timel,xmf
-
-	#print k,kstep,time,temperature,density
-	# Convert abundance to mass fraction
-	#for n in range(1, ny):
-		#xmf[n] = aa[n]*xmf[n]
-
-	# Calculate # of timesteps
-	#nstep = len(time,2)
+		record_length2 =struct.unpack('<i',file_id.read(4))[0]
 
 nn[:] = np.array(aa) - np.array(zz)
-#time_template = 'time = %.12e s'
-#time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
-x = np.array(nn)
-y = np.array(zz)
-t = np.arange(len(y))
-#colors = cm.rainbow(np.linspace(0, 1, len(y)))
-for ith,value in enumerate(time):
-	#scat = plt.scatter(x, y, c=t, vmin=1E-20,vmax=1)
-	scat = plt.scatter(x, y, color=t, s=5)
-	plt.xlim(0,200)
-	plt.ylim(0,100)
-#ani = animation.FuncAnimation(fig, update_plot, frames=100,interval=100, blit=True, fargs=(c, scat))
-	plt.savefig('_tmp%04d.png'%ith)
-#sp.call(["ffmpeg","-y","-r","200","-i", "_test%04d.png","-vcodec","mpeg4", "-qscale","5", "-r", "200", "video.avi"])
+#Set up the chart. Import the A,Z,N of known nuclei
 
+chart = np.genfromtxt('zna.dat',delimiter=" ", dtype = float) 
+stable = np.genfromtxt('Stable_Nuclides.txt',delimiter=" ",dtype=float)
+Abig = [row[0] for row in chart]
+Zbig = [row[1] for row in chart]
+Nbig = [row[2] for row in chart]
+
+Abig = np.asarray(Abig)
+Zbig = np.asarray(Zbig)
+Nbig = np.asarray(Nbig) 
+
+Astable = np.asarray([row[0] for row in stable]) 
+Zstable =  np.asarray([row[1] for row in stable]) 
+Nstable = Astable - Zstable 
+
+color_data = np.asarray(abundance) 
+
+#transpose the graph
+
+#color_data=zip(*abundance) 
+color_data=np.transpose(color_data) 
+#print type(color_data)
+color_data = np.asarray(color_data) 
+
+#Make it log
+color_data=color_data+0.000000000000000000000000000000001
+color_data = np.log10(color_data)
+
+
+fig=plt.figure()
+ax = fig.add_subplot(111)
+plot, = ax.plot([], [])
+print "start"
+def init():
+	plot=fig.clf()
+	return plot
+def animate(k):
+	global gith
+	#while time[i]<k:
+		#i=i+1
+	print "animate", gith, time[gith]
+	plt.clf()
+	plt.ylim([0,150])
+	plt.xlim([0,250])
+	map=np.zeros((150,250))
+	
+	for l in xrange(0,ny):
+		map[int(zz[l])][int(nn[l])]=xmf[gith][l]
+	plot=plt.pcolor(map,norm=LogNorm(vmin=1.0e-25, vmax=1.0e+0))
+	plt.title(sys.argv[1]+" t="+'%12e s'%time[gith])
+	plt.colorbar()
+	gith = gith+100
+	return plot
+#writer = animation.MovieWriter()
+#ani = animation.FuncAnimation(fig,animate,np.arange(0, int(time[-1]),100000),blit=False,init_func=init)
+ani = animation.FuncAnimation(fig,animate,blit=False,init_func=init)
+#ani.save("ab_"+sys.argv[1]+".mp4", writer=writer,fps=15)
+plt.show()
