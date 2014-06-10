@@ -33,7 +33,7 @@ tso
 Data_r-process_JINAv2.0
 # Initial Abundance and Thermodynamic Trajectory Files
 Data_r-process_JINAv2.0/ab_ye26
-th_mb_s200t010
+th_pj_s200t015
 test/Data_alpha/ab_he
 th_constant
   he4  c12  o16 ne20 mg24 si28  s32 ar36 ca40 ti44 cr48 fe52 ni56 zn60

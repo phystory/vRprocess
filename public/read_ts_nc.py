@@ -51,7 +51,7 @@ timestep = []
 edot = []
 ims = []
 
-with open("tso25",'rb') as file_id:
+with open("tso1",'rb') as file_id:
 	record_length1=struct.unpack('<i',file_id.read(4))[0]
 	for ith in range (0,80):
 		desc1.append(struct.unpack('c',file_id.read(1))[0])
@@ -117,7 +117,7 @@ with open("tso25",'rb') as file_id:
 
 	# Read data from each timestep
 	print "kstmx=",kstmx
-	#kstmx=2000
+	kstmx=50
 	for k in range(1, kstmx):
 		try:
 			record_length1 =struct.unpack('<i',file_id.read(4))[0]
@@ -153,6 +153,7 @@ nn[:] = np.array(aa) - np.array(zz)
 
 #Set up the chart. Import the A,Z,N of known nuclei
 
+cm = mpl.cm.get_cmap('Blues')
 chart = np.genfromtxt('zna.dat',delimiter=" ", dtype = float) 
 stable = np.genfromtxt('Stable_Nuclides.txt',delimiter=" ",dtype=float)
 Abig = [row[0] for row in chart]
@@ -167,46 +168,59 @@ Astable = np.asarray([row[0] for row in stable])
 Zstable =  np.asarray([row[1] for row in stable]) 
 Nstable = Astable - Zstable 
 
-color_data = np.asarray(abundance) 
+Nnetwork = np.asarray(nn)
+Znetwork = np.asarray(zz)
+color_data = np.asarray(xmf) 
 
 #transpose the graph
 
 #color_data=zip(*abundance) 
-color_data=np.transpose(color_data) 
+#color_data=np.transpose(color_data) 
 #print type(color_data)
-color_data = np.asarray(color_data) 
+#color_data = np.asarray(color_data) 
 
 #Make it log
 color_data=color_data+0.000000000000000000000000000000001
 color_data = np.log10(color_data)
 
+#---------Plotting begins here------
 
-fig=plt.figure()
-ax = fig.add_subplot(111)
-plot, = ax.plot([], [])
-print "start"
-def init():
-	plot=fig.clf()
-	return plot
-def animate(k):
-	global gith
-	#while time[i]<k:
-		#i=i+1
-	print "animate", gith, time[gith]
-	plt.clf()
-	plt.ylim([0,150])
-	plt.xlim([0,250])
-	map=np.zeros((150,250))
-	
-	for l in xrange(0,ny):
-		map[int(zz[l])][int(nn[l])]=xmf[gith][l]
-	plot=plt.pcolor(map,norm=LogNorm(vmin=1.0e-25, vmax=1.0e+0))
-	plt.title(sys.argv[1]+" t="+'%12e s'%time[gith])
-	plt.colorbar()
-	gith = gith+100
-	return plot
-#writer = animation.MovieWriter()
-#ani = animation.FuncAnimation(fig,animate,np.arange(0, int(time[-1]),100000),blit=False,init_func=init)
-ani = animation.FuncAnimation(fig,animate,blit=False,init_func=init)
-#ani.save("ab_"+sys.argv[1]+".mp4", writer=writer,fps=15)
+#Plot a white set of boxes
+fig = plt.figure()
+ax = fig.add_subplot(111) 
+big=ax.scatter(Nbig,Zbig,c='k',marker='s', s=40)
+#big1=ax.scatter(Nbig,Nbig)
+#initialise animation 
+#scatt = ax.scatter(Nnetwork,Znetwork,c='w',marker ='s', s=40, vmin=1E-25, vmax=0, norm=LogNorm())
+scatt = ax.scatter(Nnetwork,Znetwork,c='w',marker ='s', lw=0, s=40, cmap=cm, norm=LogNorm(vmin=1.0e-25, vmax=1.0e+0))
+ax.set_xlabel("Number of Neutrons",fontsize=12)
+ax.set_ylabel("Number of Protons",fontsize=12)
+ax.set_xlim(-2,250)
+ax.set_ylim(-2,150)
+
+
+
+def update_plot(gith, data, scatt):
+    scatt.set_array(data[gith])
+    scatt.set_cmap(cm)
+    plt.title(" t="+str(time[gith]))
+    #print gith, data[gith]
+    return scatt,
+
+ani=animation.FuncAnimation(fig,update_plot,frames=len(color_data), interval=1, fargs=(color_data,scatt))
+
+stablep=ax.scatter(Nstable,Zstable,c='k',marker='x', s=20)
+
+cbar = plt.colorbar(scatt)
+cbar.set_label('Abundance', rotation=270)
+
+# save the animation as an mp4.  This requires ffmpeg or mencoder to be
+# installed.  The extra_args ensure that the x264 codec is used, so that
+# the video can be embedded in html5.  You may need to adjust this for
+# your system: for more information, see
+# http://matplotlib.sourceforge.net/api/animation_api.html
+#ani.save('np150chart.mp4', fps=70, extra_args=['-vcodec', 'libx264'])
+#ani.save('np150chart.mp4', fps=70)
+
+
 plt.show()
