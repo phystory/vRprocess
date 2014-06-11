@@ -32,7 +32,7 @@ tso
 # Nuclear Data Directory
 Data_r-process_JINAv2.0
 # Initial Abundance and Thermodynamic Trajectory Files
-Data_r-process_JINAv2.0/ab_ye26
+Data_r-process_JINAv2.0/ab_ye01
 th_pj_s200t015
 test/Data_alpha/ab_he
 th_constant

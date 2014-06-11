@@ -29,7 +29,7 @@ function [zz, aa, xmf, time, temperature, density, timestep, edot, flx_end, flx]
 %--------------------------------------------------------------------------
 """
 
-gstep = 500
+gstep = 10
 desc1 = []
 desc2 = []
 desc3 = []
@@ -116,9 +116,7 @@ with open("tso1",'rb') as file_id:
 	print record_length2
 
 	# Read data from each timestep
-	print "kstmx(from)=",kstmx
-	kstmx=2000
-	print "kstmx(to)=",kstmx
+	kstmx=5000
 	for k in range(1, kstmx):
 		try:
 			record_length1 =struct.unpack('<i',file_id.read(4))[0]
@@ -181,8 +179,8 @@ def init():
 def update_plot(k):
     global abundbya,plotx,gstep
     gith = k*gstep
-    if gith > (kstmx-2) :
-        gith = kstmx-2
+    if gith > (kstep-2) :
+        gith = kstep-2
     print k, gith
     abundbya=np.zeros(350)
     for l,val in enumerate(abund[gith]):
@@ -198,7 +196,7 @@ def update_plot(k):
     #print gith, data[gith]
     return data,time_text
 
-norstep = int(round(float(kstmx)/float(gstep) + 1.49))
+norstep = int(round(float(kstep)/float(gstep) + 1.49))
 ani = animation.FuncAnimation(fig, update_plot, init_func=init, frames=norstep, interval=1, blit=True)
 
 plt.show()
