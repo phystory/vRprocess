@@ -49,7 +49,7 @@ OPENMP_MODE ?= OFF
 GPU_MODE    ?= OFF
 
 # Optional features for XNet, uncomment to enable
-#NSE_OBJ = nse.o 		# Also uncomment lines labeled !NSE or use sed -e 's/^\!\(.*\!NSE\)/ \1/' *.f90
+NSE_OBJ = nse.o 		# Also uncomment lines labeled !NSE or use sed -e 's/^\!\(.*\!NSE\)/ \1/' *.f90
 			#        Comment lines labeled !NSE with   sed -e 's/^[^\!]\(.*\!NSE\)/!\1/' *.f90
 #FFN_OBJ = ffn.o 		# Also uncomment lines labeled !FFN or use sed -e 's/^\!\(.*\!FFN\)/ \1/' *.f90
 			#        Comment lines labeled !FFN with   sed -e 's/^[^\!]\(.*\!FFN\)/!\1/' *.f90

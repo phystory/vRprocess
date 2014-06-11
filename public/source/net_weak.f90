@@ -25,16 +25,16 @@ Program net
   Use match_data
   Use flux_data
   Use timers
-! Use nse_abundance                                                     !NSE
+  Use nse_abundance                                                     !NSE
 ! Use neutrino_data                                                     !NNU
 !$ Use omp_lib
   Integer :: i,j,k,n,nz,izone! Loop indices
   Integer :: kstep,ii(14),ierr,index,lun_control
   Integer :: nstart,kstart
-  Real(8) :: tdelstart,t9start,rhostart
+  Real(8) :: tdelstart,t9start,rhostart,dummy
   Integer, Parameter :: nzmx=100
   Real(8), Dimension(:), Allocatable :: yin
-! Real(8) :: yestart,dt,rdt,dye                                         !NSE
+  Real(8) :: yestart,dt,rdt,dye                                         !NSE
   Real(8), Dimension(:), Allocatable, Save :: dyf,flx_diff
   Character (LEN=5)  :: output_nuc(14)
   Character (LEN=80) :: descript(3),data_desc
@@ -91,13 +91,13 @@ Program net
 
 ! Read NSE Initial Abundance Controls 
 ! temperature at which NSE initial conditions are used, t9nse =8 is default.
-! call find_controls_block(lun_control,'NSE Initial Conditions',ierr)   !NSE
-! If(ierr/=0) Then                                                      !NSE
-!     Read(lun_control,*) t9nse                                         !NSE
-! Else                                                                  !NSE
-!   Write(6,*) 'Using Default NSE behavior'                             !NSE 
-!   t9nse = 8.0                                                         !NSE
-! Endif                                                                 !NSE
+  call find_controls_block(lun_control,'NSE Initial Conditions',ierr)   !NSE
+  If(ierr/=0) Then                                                      !NSE
+      Read(lun_control,*) t9nse                                         !NSE
+  Else                                                                  !NSE
+    Write(6,*) 'Using Default NSE behavior'                             !NSE 
+    t9nse = 8.0                                                         !NSE
+  Endif                                                                 !NSE
 
 ! Read Neutrino Controls
 ! call find_controls_block(lun_control,'Neutrinos',ierr)                !NNU
@@ -236,7 +236,7 @@ Program net
 ! each integration
 !-----------------------------------------------------------------------
 
-! call nse_initialize                                               !NSE                                
+  call nse_initialize                                               !NSE                                
   
 ! Stop setup timer
   stop_timer = xnet_wtime()
@@ -252,16 +252,18 @@ Program net
 ! Read the thermdynamic trajectory
     lun_th=50+4*nzmx+izone
     Open(lun_th,file=thermo_file(izone))
-    Read(lun_th,"(a)") thermo_desc
+    Read(lun_th,*) thermo_desc
     Read(lun_th,*) tstart
     Read(lun_th,*) tstop
     Read(lun_th,*) tdelstart
   
-!   yeh = 0.0                                                       !NSE
+    yeh = 0.0                                                       !NSE
     Do n=1,nhmx
-      Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n) !NOTNSE !NOTNNU
-!     Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n),yeh(n) !NSE !NOTNNU
+!     Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n) !NOTNSE !NOTNNU
+      Read(lun_th,*,IOSTAT=ierr) th(n),dummy,dummy,dummy,rhoh(n),t9h(n),rhoh(n),yeh(n) !NSE !NOTNNU
 !     Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n),yeh(n),fluxcms(n,:),tmevnu(n,:) !NNU
+      t9h(n) = 10**t9h(n)/1E9
+      rhoh(n) = 10**rhoh(n)
 
       If(ierr==-1) Then
         If(idiag>2) Write(lun_diag,"(a,i6,a)") 'End of Thermo File Reached after',n,' records'
@@ -283,28 +285,28 @@ Program net
 
 ! Load initial Abundances.    
 ! For High temperatures, use NSE initial abundance.
-!   If(t9start>t9nse .and. yeh(1)>0.0d0 .and. yeh(1)<=1.0d0) Then       !NSE
+    If(t9start>t9nse .and. yeh(1)>0.0d0 .and. yeh(1)<=1.0d0) Then       !NSE
 
 ! Interpolate initial Ye
-!     If(nstart>1.and.nstart<=nh) Then                                  !NSE
-!       rdt=1.0/(th(nstart)-th(nstart-1))                               !NSE
-!       dt=tstart-th(nstart-1)                                          !NSE
-!       dye=yeh(nstart)-yeh(nstart-1)                                   !NSE
-!       yestart=dt*rdt*dye+yeh(nstart-1)                                !NSE
-!     ElseIf(nstart==1) Then                                            !NSE
-!       yestart=yeh(1)                                                  !NSE
-!     Else                                                              !NSE
-!       yestart=yeh(nh)                                                 !NSE
-!     EndIf                                                             !NSE
+      If(nstart>1.and.nstart<=nh) Then                                  !NSE
+        rdt=1.0/(th(nstart)-th(nstart-1))                               !NSE
+        dt=tstart-th(nstart-1)                                          !NSE
+        dye=yeh(nstart)-yeh(nstart-1)                                   !NSE
+        yestart=dt*rdt*dye+yeh(nstart-1)                                !NSE
+      ElseIf(nstart==1) Then                                            !NSE
+        yestart=yeh(1)                                                  !NSE
+      Else                                                              !NSE
+        yestart=yeh(nh)                                                 !NSE
+      EndIf                                                             !NSE
 
 ! Calculate NSE abundances
-!     Write(lun_diag,fmt='(a,es10.4,a,es10.4,a,f5.4)') &                !NSE 
-!&      'NSE abundances for T9=',t9start,', rho=',rhostart,', Ye=',yestart !NSE
-!     call nse_descend(rhostart,yestart,t9start,t9start)                !NSE
-!     yin=ynse                                                          !NSE
+      Write(lun_diag,fmt='(a,es20.4,a,es20.4,a,f15.4)') &                !NSE 
+ &      'NSE abundances for T9=',t9start,', rho=',rhostart,', Ye=',yestart !NSE
+      call nse_descend(rhostart,yestart,t9start,t9start)                !NSE
+      yin=ynse                                                          !NSE
 
 ! Read Initial Abundances
-!   Else                                                                !NSE
+    Else                                                                !NSE
       lun_ab=50+3*nzmx+izone
       Open(lun_ab,file=inab_file(izone))
       Read(lun_ab,"(a)") abund_desc
@@ -315,15 +317,15 @@ Program net
         Write(lun_diag,"(a)") inab_file(izone)
         Write(lun_diag,"(a)") abund_desc
       Endif
-!     If( t9start>t9nse ) Then                                          !NSE
-!       yestart=sum(zz*yin)                                             !NSE
+      If( t9start>t9nse ) Then                                          !NSE
+        yestart=sum(zz*yin)                                             !NSE
 ! Calculate NSE abundances
-!       Write(lun_diag,fmt='(a,es10.4,a,es10.4,a,f5.4)') &              !NSE
-!       & 'NSE abundances for T9=',t9start,', rho=',rhostart,', Ye=',yestart !NSE
-!       call nse_descend(rhostart,yestart,t9start,t9start)              !NSE
-!       yin=ynse                                                        !NSE
-!     EndIf                                                             !NSE
-!   Endif                                                               !NSE
+        Write(lun_diag,fmt='(a,es20.4,a,es20.4,a,f15.4)') &              !NSE
+        & 'NSE abundances for T9=',t9start,', rho=',rhostart,', Ye=',yestart !NSE
+        call nse_descend(rhostart,yestart,t9start,t9start)              !NSE
+        yin=ynse                                                        !NSE
+      EndIf                                                             !NSE
+    Endif                                                               !NSE
 !   Call sum_test(yin)
   
 ! Load initial abundances, time and timestep
