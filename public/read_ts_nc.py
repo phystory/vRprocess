@@ -29,7 +29,7 @@ function [zz, aa, xmf, time, temperature, density, timestep, edot, flx_end, flx]
 %--------------------------------------------------------------------------
 """
 
-gith = 0
+gstep = 1
 desc1 = []
 desc2 = []
 desc3 = []
@@ -116,8 +116,9 @@ with open("tso1",'rb') as file_id:
 	print record_length2
 
 	# Read data from each timestep
-	print "kstmx=",kstmx
+	print "kstmx(asis)=",kstmx
 	kstmx=50
+	print "kstmx(tobe)=",kstmx
 	for k in range(1, kstmx):
 		try:
 			record_length1 =struct.unpack('<i',file_id.read(4))[0]
@@ -153,7 +154,7 @@ nn[:] = np.array(aa) - np.array(zz)
 
 #Set up the chart. Import the A,Z,N of known nuclei
 
-cm = mpl.cm.get_cmap('Blues')
+cm = mpl.cm.get_cmap('Reds')
 chart = np.genfromtxt('zna.dat',delimiter=" ", dtype = float) 
 stable = np.genfromtxt('Stable_Nuclides.txt',delimiter=" ",dtype=float)
 Abig = [row[0] for row in chart]
@@ -188,26 +189,31 @@ color_data = np.log10(color_data)
 #Plot a white set of boxes
 fig = plt.figure()
 ax = fig.add_subplot(111) 
-big=ax.scatter(Nbig,Zbig,c='k',marker='s', s=40)
-#big1=ax.scatter(Nbig,Nbig)
-#initialise animation 
-#scatt = ax.scatter(Nnetwork,Znetwork,c='w',marker ='s', s=40, vmin=1E-25, vmax=0, norm=LogNorm())
-scatt = ax.scatter(Nnetwork,Znetwork,c='w',marker ='s', lw=0, s=40, cmap=cm, norm=LogNorm(vmin=1.0e-25, vmax=1.0e+0))
+big=ax.scatter(Nbig,Zbig,c='w',marker='s', lw=0.1, s=40)
+#initialize animation 
+scatt = ax.scatter(Nnetwork,Znetwork,c='w',marker ='s', lw=0.1, s=40, cmap=cm, norm=LogNorm(vmin=1.0e-25, vmax=1.0e+0))
+plt.title("Nuclear Chart for Abundance change in the r-process over time")
 ax.set_xlabel("Number of Neutrons",fontsize=12)
 ax.set_ylabel("Number of Protons",fontsize=12)
 ax.set_xlim(-2,250)
 ax.set_ylim(-2,150)
+time_template = 'time = %.12e s'
+time_text = ax.text(0.1, 0.95, '', transform=ax.transAxes)
+time_text.set_text('')
 
-
-
-def update_plot(gith, data, scatt):
+def update_plot(k, data, scatt):
+    global time_text, gstep
+    gith = k*gstep
+    if gith > (kstmx-2) :
+        gith = kstmx-2
     scatt.set_array(data[gith])
     scatt.set_cmap(cm)
-    plt.title(" t="+str(time[gith]))
     #print gith, data[gith]
-    return scatt,
+    time_text.set_text(time_template%(time[gith]))
+    return scatt
 
-ani=animation.FuncAnimation(fig,update_plot,frames=len(color_data), interval=1, fargs=(color_data,scatt))
+norstep = int(round(float(kstmx)/float(gstep) + 1.49))
+ani=animation.FuncAnimation(fig,update_plot, frames=norstep, interval=1, fargs=(color_data,scatt))
 
 stablep=ax.scatter(Nstable,Zstable,c='k',marker='x', s=20)
 

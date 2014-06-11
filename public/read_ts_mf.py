@@ -29,8 +29,7 @@ function [zz, aa, xmf, time, temperature, density, timestep, edot, flx_end, flx]
 %--------------------------------------------------------------------------
 """
 
-gith = 0
-gstep = 300
+gstep = 500
 desc1 = []
 desc2 = []
 desc3 = []
@@ -117,8 +116,9 @@ with open("tso1",'rb') as file_id:
 	print record_length2
 
 	# Read data from each timestep
-	print "kstmx=",kstmx
+	print "kstmx(from)=",kstmx
 	kstmx=2000
+	print "kstmx(to)=",kstmx
 	for k in range(1, kstmx):
 		try:
 			record_length1 =struct.unpack('<i',file_id.read(4))[0]
@@ -151,39 +151,7 @@ with open("tso1",'rb') as file_id:
 		record_length2 =struct.unpack('<i',file_id.read(4))[0]
 
 nn[:] = np.array(aa) - np.array(zz)
-
-#Set up the chart. Import the A,Z,N of known nuclei
-
-cm = mpl.cm.get_cmap('Blues')
-chart = np.genfromtxt('zna.dat',delimiter=" ", dtype = float) 
-stable = np.genfromtxt('Stable_Nuclides.txt',delimiter=" ",dtype=float)
-Abig = [row[0] for row in chart]
-Zbig = [row[1] for row in chart]
-Nbig = [row[2] for row in chart]
-
-Abig = np.asarray(Abig)
-Zbig = np.asarray(Zbig)
-Nbig = np.asarray(Nbig) 
-
-Astable = np.asarray([row[0] for row in stable]) 
-Zstable =  np.asarray([row[1] for row in stable]) 
-Nstable = Astable - Zstable 
-
-Nnetwork = np.asarray(nn)
-Znetwork = np.asarray(zz)
-color_data = np.asarray(xmf) 
-abund = np.asarray(xmf) 
-
-#transpose the graph
-
-#color_data=zip(*abundance) 
-#color_data=np.transpose(color_data) 
-#print type(color_data)
-#color_data = np.asarray(color_data) 
-
-#Make it log
-color_data=color_data+0.000000000000000000000000000000001
-color_data = np.log10(color_data)
+abund = np.asarray(xmf)
 
 #---------Plotting begins here------
 
@@ -196,9 +164,12 @@ fig = plt.figure()
 ax = plt.axes(xlim=(xmin,xmax), ylim=(ymin,ymax))
 data, = ax.plot([], [], lw=2)
 plt.yscale('log')
+plt.title("Abundance vs Atomic Mass Number over time",fontsize=12)
+ax.set_xlabel("Mass Numbers",fontsize=12)
+ax.set_ylabel("Abundance",fontsize=12)
 
 time_template = 'time = %.12e s'
-time_text = ax.text(0.5, 0.9, '', transform=ax.transAxes, horizontalalignment='right')
+time_text = ax.text(0.55, 0.95, '', transform=ax.transAxes)
 abundbya=np.zeros(350)
 plotx=range(350)
 
@@ -208,7 +179,11 @@ def init():
 	return data,time_text
 
 def update_plot(k):
-    global abundbya,plotx,gith,gstep
+    global abundbya,plotx,gstep
+    gith = k*gstep
+    if gith > (kstmx-2) :
+        gith = kstmx-2
+    print k, gith
     abundbya=np.zeros(350)
     for l,val in enumerate(abund[gith]):
     	abundbya[int(aa[l])] += val
@@ -221,10 +196,9 @@ def update_plot(k):
     data.set_ydata(y)
     time_text.set_text(time_template%(time[gith]))
     #print gith, data[gith]
-    gith += gstep
     return data,time_text
 
-norstep = int((kstmx-1)/gstep)
-ani = animation.FuncAnimation(fig, update_plot, init_func=init, frames=norstep,interval=1, blit=True)
+norstep = int(round(float(kstmx)/float(gstep) + 1.49))
+ani = animation.FuncAnimation(fig, update_plot, init_func=init, frames=norstep, interval=1, blit=True)
 
 plt.show()
