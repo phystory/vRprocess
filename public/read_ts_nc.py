@@ -116,9 +116,6 @@ with open("tso1",'rb') as file_id:
 	print record_length2
 
 	# Read data from each timestep
-	print "kstmx(asis)=",kstmx
-	kstmx=50
-	print "kstmx(tobe)=",kstmx
 	for k in range(1, kstmx):
 		try:
 			record_length1 =struct.unpack('<i',file_id.read(4))[0]
@@ -204,15 +201,15 @@ time_text.set_text('')
 def update_plot(k, data, scatt):
     global time_text, gstep
     gith = k*gstep
-    if gith > (kstmx-2) :
-        gith = kstmx-2
+    if gith > (kstep-2) :
+        gith = kstep-2
     scatt.set_array(data[gith])
     scatt.set_cmap(cm)
     #print gith, data[gith]
     time_text.set_text(time_template%(time[gith]))
     return scatt
 
-norstep = int(round(float(kstmx)/float(gstep) + 1.49))
+norstep = int(round(float(kstep)/float(gstep) + 1.49))
 ani=animation.FuncAnimation(fig,update_plot, frames=norstep, interval=1, fargs=(color_data,scatt))
 
 stablep=ax.scatter(Nstable,Zstable,c='k',marker='x', s=20)
