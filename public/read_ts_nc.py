@@ -29,7 +29,7 @@ function [zz, aa, xmf, time, temperature, density, timestep, edot, flx_end, flx]
 %--------------------------------------------------------------------------
 """
 
-gstep = 1
+gstep = 100
 desc1 = []
 desc2 = []
 desc3 = []
@@ -126,6 +126,7 @@ with open("tso1",'rb') as file_id:
 			break
 		# Otherwise read data
 		kstep          =struct.unpack('<i',file_id.read(4))[0]
+		print kstep, " < ", kstmx
 		#time.append(struct.unpack('<d',file_id.read(8))[0])
 		#temperature.append(struct.unpack('<d',file_id.read(8))[0])
 		#density.append(struct.unpack('<d',file_id.read(8))[0])

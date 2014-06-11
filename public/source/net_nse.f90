@@ -298,7 +298,7 @@ Program net
       EndIf                                                             !NSE
 
 ! Calculate NSE abundances
-      Write(lun_diag,fmt='(a,es10.4,a,es10.4,a,f5.4)') &                !NSE 
+      Write(lun_diag,fmt='(a,es20.4,a,es20.4,a,f15.4)') &                !NSE 
  &      'NSE abundances for T9=',t9start,', rho=',rhostart,', Ye=',yestart !NSE
       call nse_descend(rhostart,yestart,t9start,t9start)                !NSE
       yin=ynse                                                          !NSE
@@ -318,7 +318,7 @@ Program net
       If( t9start>t9nse ) Then                                          !NSE
         yestart=sum(zz*yin)                                             !NSE
 ! Calculate NSE abundances
-        Write(lun_diag,fmt='(a,es10.4,a,es10.4,a,f5.4)') &              !NSE
+        Write(lun_diag,fmt='(a,es20.4,a,es20.4,a,f15.4)') &              !NSE
         & 'NSE abundances for T9=',t9start,', rho=',rhostart,', Ye=',yestart !NSE
         call nse_descend(rhostart,yestart,t9start,t9start)              !NSE
         yin=ynse                                                        !NSE

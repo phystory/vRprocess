@@ -31,7 +31,7 @@ Program net
   Integer :: i,j,k,n,nz,izone! Loop indices
   Integer :: kstep,ii(14),ierr,index,lun_control
   Integer :: nstart,kstart
-  Real(8) :: tdelstart,t9start,rhostart
+  Real(8) :: tdelstart,t9start,rhostart,dummy
   Integer, Parameter :: nzmx=100
   Real(8), Dimension(:), Allocatable :: yin
   Real(8) :: yestart,dt,rdt,dye                                         !NSE
@@ -252,7 +252,7 @@ Program net
 ! Read the thermdynamic trajectory
     lun_th=50+4*nzmx+izone
     Open(lun_th,file=thermo_file(izone))
-    Read(lun_th,"(a)") thermo_desc
+    Read(lun_th,*) thermo_desc
     Read(lun_th,*) tstart
     Read(lun_th,*) tstop
     Read(lun_th,*) tdelstart
@@ -260,8 +260,11 @@ Program net
     yeh = 0.0                                                       !NSE
     Do n=1,nhmx
 !     Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n) !NOTNSE !NOTNNU
-      Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n),yeh(n) !NSE !NOTNNU
+      Read(lun_th,*,IOSTAT=ierr) th(n),dummy,dummy,dummy,rhoh(n),t9h(n),yeh(n) !NSE !NOTNNU
 !     Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n),yeh(n),fluxcms(n,:),tmevnu(n,:) !NNU
+      t9h(n) = 10**t9h(n)/1E9
+      rhoh(n) = 10**rhoh(n)
+      Write(*,*) th(n), t9h(n), rhoh(n)
 
       If(ierr==-1) Then
         If(idiag>2) Write(lun_diag,"(a,i6,a)") 'End of Thermo File Reached after',n,' records'
