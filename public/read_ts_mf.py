@@ -201,3 +201,24 @@ norstep = int(round(float(kstep)/float(gstep) + 1.49))
 ani = animation.FuncAnimation(fig, update_plot, init_func=init, frames=norstep, interval=1, blit=True)
 
 plt.show()
+
+fig1 = plt.figure()
+ax1 = plt.axes(xlim=(xmin,xmax), ylim=(ymin,ymax))
+data1, = ax1.plot([], [], lw=2)
+ax1.set_xlabel("Mass Numbers",fontsize=12)
+ax1.set_ylabel("Abundance",fontsize=12)
+
+time_text1 = ax1.text(0.55, 0.95, '', transform=ax1.transAxes)
+
+abundbya1=np.zeros(350)
+for l,val in enumerate(abund[kstep-2]):
+	abundbya1[int(aa[l])] += val
+x1 = np.array(plotx)
+y1 = np.array(abundbya)
+data1.set_data([], [])
+time_text1.set_text('')
+data1.set_xdata(x)
+data1.set_ydata(y)
+time_text1.set_text(time_template%(time[kstep-2]))
+
+plt.show()

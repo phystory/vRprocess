@@ -216,7 +216,7 @@ ani=animation.FuncAnimation(fig,update_plot, frames=norstep, interval=1, fargs=(
 stablep=ax.scatter(Nstable,Zstable,c='k',marker='x', s=20)
 
 cbar = plt.colorbar(scatt)
-cbar.set_label('Abundance', rotation=270)
+cbar.set_label('Abundance(logY)', rotation=270)
 
 # save the animation as an mp4.  This requires ffmpeg or mencoder to be
 # installed.  The extra_args ensure that the x264 codec is used, so that

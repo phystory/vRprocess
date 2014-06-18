@@ -260,11 +260,13 @@ Program net
     yeh = 0.0                                                       !NSE
     Do n=1,nhmx
 !     Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n) !NOTNSE !NOTNNU
-      Read(lun_th,*,IOSTAT=ierr) th(n),dummy,dummy,dummy,rhoh(n),t9h(n),yeh(n) !NSE !NOTNNU
+      Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n) !TNSE !NOTNNU
 !     Read(lun_th,*,IOSTAT=ierr) th(n),t9h(n),rhoh(n),yeh(n),fluxcms(n,:),tmevnu(n,:) !NNU
-      t9h(n) = 10**t9h(n)/1E9
-      rhoh(n) = 10**rhoh(n)
-      Write(*,*) th(n), t9h(n), rhoh(n)
+
+!     Read(lun_th,*,IOSTAT=ierr) th(n),dummy,dummy,dummy,rhoh(n),t9h(n),yeh(n) !NSE !Stephen Rosswog
+!     t9h(n) = 10**t9h(n)/1E9 !NSE !Stephen Rosswog
+!     rhoh(n) = 10**rhoh(n) !NSE !Stephen Rosswog
+!     Write(*,*) th(n), t9h(n), rhoh(n) !NSE !Stephen Rosswog
 
       If(ierr==-1) Then
         If(idiag>2) Write(lun_diag,"(a,i6,a)") 'End of Thermo File Reached after',n,' records'
